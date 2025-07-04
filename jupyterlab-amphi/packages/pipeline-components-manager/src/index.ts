@@ -10,6 +10,7 @@ export { renderComponentUI, renderHandle, createZoomSelector } from './rendererU
 export { PipelineComponent } from './PipelineComponent'
 export { CodeGenerator } from './CodeGenerator'
 export { CodeGeneratorDagster } from './CodeGeneratorDagster'
+export { CodeGeneratorGlue } from './CodeGeneratorGlue'
 export { PipelineService } from './PipelineService'
 export { RequestService } from './RequestService'
 
