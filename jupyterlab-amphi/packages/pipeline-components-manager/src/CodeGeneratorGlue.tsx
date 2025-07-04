@@ -20,7 +20,7 @@ export class CodeGeneratorGlue extends BaseCodeGenerator {
     console.log("Inside generateGlueCode method");
 
     const flow = PipelineService.filterPipeline(pipelineJson);
-    const { nodesToTraverse, nodesMap, nodeDependencies } = this.computeNodesToTraverse(
+    const { nodesToTraverse, nodesMap, nodeDependencies } = BaseCodeGenerator.computeNodesToTraverse(
       flow,
       'none',
       componentService
@@ -35,8 +35,8 @@ export class CodeGeneratorGlue extends BaseCodeGenerator {
       'from awsglue.job import Job'
     ];
 
-    const envVariablesCode = this.getEnvironmentVariableCode(pipelineJson, componentService);
-    const connectionsCode = this.getConnectionCode(pipelineJson, componentService);
+    const envVariablesCode = BaseCodeGenerator.getEnvironmentVariableCode(pipelineJson, componentService);
+    const connectionsCode = BaseCodeGenerator.getConnectionCode(pipelineJson, componentService);
 
     const uniqueImports = new Set<string>();
     const uniqueDependencies = new Set<string>();
@@ -157,7 +157,7 @@ logger.info(f"Starting AWS Glue job: {job_name}")`;
       
       // Generate output name
       const outputName = variablesAutoNaming 
-        ? this.generateReadableName(config.customTitle || node.type)
+        ? CodeGeneratorGlue.generateReadableName(config.customTitle || node.type)
         : (config.customTitle || `${node.type}_${nodeId}`);
       
       // Convert component code to PySpark
@@ -324,5 +324,20 @@ if __name__ == '__main__':
 `;
 
     return script;
+  }
+
+  /**
+   * Generate readable name for variables
+   */
+  static generateReadableName(rawName: string): string {
+    const camelCaseName = rawName
+      .split(/(?=[A-Z])/)
+      .map((word, index) =>
+        index === 0
+          ? word.toLowerCase()
+          : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      )
+      .join('');
+    return camelCaseName;
   }
 }
