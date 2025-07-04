@@ -14,6 +14,9 @@ export { LocalFileInput } from './inputs/files/LocalFileInput';
 export { CustomInput } from './custom/CustomInput';
 export { FileUtils } from './common/FileUtils'; // Import the FileUtils class
 
+// AWS Glue Components
+export { GlueDataCatalogInput } from './inputs/aws/glue/GlueDataCatalogInput';
+
 export { RestInput } from './inputs/cloud/RestInput';
 export { GoogleSheetsInput } from './inputs/cloud/GoogleSheetsInput';
 export { MySQLInput } from './inputs/databases/MySQLInput';
@@ -72,6 +75,9 @@ export { OracleOutput } from './outputs/databases/OracleOutput';
 export { RestOutput } from './outputs/cloud/RestOutput';
 export { S3FileOutput } from './outputs/files/S3FileOutput';
 export { CustomOutput } from './custom/CustomOutput';
+
+// AWS Glue Outputs
+export { GlueDataCatalogOutput } from './outputs/aws/glue/GlueDataCatalogOutput';
 
 // Settings
 export { EnvFile } from './settings/EnvFile';
