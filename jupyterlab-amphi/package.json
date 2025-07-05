@@ -1,6 +1,7 @@
 {
     "name": "@amphi/jupyterlab-amphi",
     "version": "0.8.28",
+    "private": true,
     "keywords": [
         "amphi",
         "etl",
