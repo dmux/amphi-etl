@@ -44,15 +44,15 @@ import posthog from 'posthog-js'
 import { PostHogProvider } from 'posthog-js/react'
 
 
-import { ConfigProvider, Modal, Button, Splitter, Dropdown } from 'antd';
+import { ConfigProvider, Modal, Button, Splitter, Dropdown, Form, Input, Checkbox } from 'antd';
 import { DownOutlined, LoadingOutlined } from '@ant-design/icons';
 
-import { CodeGenerator, CodeGeneratorDagster, PipelineService } from '@amphi/pipeline-components-manager';
+import { CodeGenerator, CodeGeneratorDagster, CodeGeneratorGlue, PipelineService } from '@amphi/pipeline-components-manager';
 import ReactDOM from 'react-dom';
 import 'reactflow/dist/style.css';
 import CustomEdge from './customEdge';
 import { Dropzone } from './Dropzone';
-import { pipelineIcon, dagsterIcon, filePlusIcon } from './icons';
+import { pipelineIcon, dagsterIcon, awsGlueIcon, filePlusIcon } from './icons';
 
 import CodeEditor from './CodeEditor';
 
@@ -735,6 +735,102 @@ export class PipelineEditorFactory extends ABCWidgetFactory<DocumentWidget> {
     });
     widget.toolbar.addItem('save', saveButton);
 
+    async function showGlueConfigDialog(): Promise<any> {
+      return new Promise((resolve) => {
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+
+        function GlueConfigDialog() {
+          const [form] = Form.useForm();
+
+          const handleOk = async () => {
+            try {
+              const values = await form.validateFields();
+              cleanup();
+              resolve(values);
+            } catch (error) {
+              console.error('Validation failed:', error);
+            }
+          };
+
+          const handleCancel = () => {
+            cleanup();
+            resolve(null);
+          };
+
+          const cleanup = () => {
+            document.body.removeChild(container);
+          };
+
+          return (
+            <Modal
+              title="AWS Glue Job Configuration"
+              open={true}
+              onOk={handleOk}
+              onCancel={handleCancel}
+              width={600}
+              okText="Generate Glue Code"
+              cancelText="Cancel"
+            >
+              <Form
+                form={form}
+                layout="vertical"
+                initialValues={{
+                  jobName: 'amphi_glue_job',
+                  region: 'us-east-1',
+                  generateDeployScript: true
+                }}
+              >
+                <Form.Item
+                  label="Job Name"
+                  name="jobName"
+                  rules={[
+                    { required: true, message: 'Please input the job name!' },
+                    { pattern: /^[a-zA-Z0-9_-]+$/, message: 'Job name must contain only letters, numbers, hyphens, and underscores' }
+                  ]}
+                >
+                  <Input placeholder="Enter AWS Glue job name" />
+                </Form.Item>
+
+                <Form.Item
+                  label="S3 Bucket Name"
+                  name="s3BucketName"
+                  rules={[{ required: true, message: 'Please input the S3 bucket name!' }]}
+                >
+                  <Input placeholder="Enter S3 bucket for scripts and temp files" />
+                </Form.Item>
+
+                <Form.Item
+                  label="AWS Region"
+                  name="region"
+                  rules={[{ required: true, message: 'Please input the AWS region!' }]}
+                >
+                  <Input placeholder="e.g., us-east-1, eu-west-1" />
+                </Form.Item>
+
+                <Form.Item
+                  label="IAM Role ARN"
+                  name="roleArn"
+                  rules={[{ required: true, message: 'Please input the IAM role ARN!' }]}
+                >
+                  <Input placeholder="arn:aws:iam::account:role/GlueServiceRole" />
+                </Form.Item>
+
+                <Form.Item
+                  name="generateDeployScript"
+                  valuePropName="checked"
+                >
+                  <Checkbox>Generate deployment script</Checkbox>
+                </Form.Item>
+              </Form>
+            </Modal>
+          );
+        }
+
+        ReactDOM.render(<GlueConfigDialog />, container);
+      });
+    }
+
     async function showCodeModal(
       code: string,
       commands: any,
@@ -800,6 +896,57 @@ export class PipelineEditorFactory extends ABCWidgetFactory<DocumentWidget> {
           }
           handleClose();
         };
+
+        const handleExportToGlue = async () => {
+          try {
+            // Show AWS Glue configuration dialog
+            const glueConfig = await showGlueConfigDialog();
+            if (!glueConfig) return; // User cancelled
+            
+            const glueCode = CodeGeneratorGlue.generateGlueCode(
+              context.model.toString(),
+              commands,
+              componentService,
+              true,
+              glueConfig.jobName,
+              glueConfig.s3BucketName,
+              glueConfig.region
+            );
+            
+            console.log(glueCode);
+            
+            // Create the main Glue script
+            const file = await commands.execute('docmanager:new-untitled', {
+              path: '/',
+              type: 'file',
+              ext: '.py'
+            });
+            const doc = await commands.execute('docmanager:open', { path: file.path });
+            doc.context.model.fromString(glueCode);
+            
+            // Generate deployment script if requested
+            if (glueConfig.generateDeployScript) {
+              const deployScript = CodeGeneratorGlue.generateDeploymentScript(
+                glueConfig.jobName,
+                glueConfig.s3BucketName,
+                glueConfig.region,
+                glueConfig.roleArn
+              );
+              
+              const deployFile = await commands.execute('docmanager:new-untitled', {
+                path: '/',
+                type: 'file',
+                ext: '.py'
+              });
+              const deployDoc = await commands.execute('docmanager:open', { path: deployFile.path });
+              deployDoc.context.model.fromString(deployScript);
+            }
+            
+          } catch (error) {
+            console.error('Failed to export to AWS Glue:', error);
+          }
+          handleClose();
+        };
     
         const menuItems = [
           {
@@ -815,6 +962,13 @@ export class PipelineEditorFactory extends ABCWidgetFactory<DocumentWidget> {
             icon: <dagsterIcon.react height="14px" width="14px;" />,
             classname: 'anticon',
             onClick: handleExportToDagster
+          },
+          {
+            key: '3',
+            label: 'Export to AWS Glue',
+            icon: <awsGlueIcon.react height="14px" width="14px;" />,
+            classname: 'anticon',
+            onClick: handleExportToGlue
           }
         ];
     

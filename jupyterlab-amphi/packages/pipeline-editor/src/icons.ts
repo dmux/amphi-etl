@@ -11,6 +11,7 @@ import alignIconSvgStr from '../style/icons/align.svg';
 import exportIconSvgStr from '../style/icons/export-svg.svg';
 import gridAltIconSvgStr from '../style/icons/grid-alt-24.svg';
 import dagsterIconSvgStr from '../style/icons/dagster.svg';
+import awsGlueIconSvgStr from '../style/icons/aws-glue-24.svg';
 
 export const fileTextIcon = new LabIcon({
   name: 'amphi:file-text-icon',
@@ -70,6 +71,11 @@ export const gridAltIcon = new LabIcon({
 export const dagsterIcon = new LabIcon({
   name: 'amphi:dagster-icon',
   svgstr: dagsterIconSvgStr
+});
+
+export const awsGlueIcon = new LabIcon({
+  name: 'amphi:aws-glue-icon',
+  svgstr: awsGlueIconSvgStr
 });
 
 

@@ -12,7 +12,8 @@ import {
   ParquetFileInput, ParquetFileOutput, PostgresInput, PostgresOutput, MySQLInput, MySQLOutput, XmlFileInput, XmlFileOutput, DateTimeConverter,
   EnvVariables, EnvFile, Transpose, Unite, Pivot, Annotation, ODBCInput, PdfTablesInput, Summary, LocalFileInput, FlattenJSON,
   DataCleansing, GenerateIDColumn, SqlServerInput, OracleInput, Connection, SnowflakeInput, FormulaRow, InlineInput, S3FileOutput, S3FileInput,
-  SnowflakeOutput, SqlServerOutput, OracleOutput, CustomInput, CustomOutput, FileUtils, FrequencyAnalysis, FormExample,UniqueKeyDetector,FileAction,DataframeList,DataframeDelete,HierarchyPath
+  SnowflakeOutput, SqlServerOutput, OracleOutput, CustomInput, CustomOutput, FileUtils, FrequencyAnalysis, FormExample,UniqueKeyDetector,FileAction,DataframeList,DataframeDelete,HierarchyPath,
+  GlueDataCatalogInput, GlueDataCatalogOutput
 } from './components';
 
 // Export allow the component to be used as a base component in different packages
@@ -21,7 +22,8 @@ export { Aggregate, Console, ExcelFileOutput, CsvFileInput, JsonFileInput, JsonF
   ParquetFileInput, ParquetFileOutput, PostgresInput, PostgresOutput, MySQLInput, MySQLOutput, XmlFileInput, XmlFileOutput, DateTimeConverter,
   EnvVariables, EnvFile, Transpose, Unite, Pivot, Annotation, ODBCInput, PdfTablesInput, Summary, LocalFileInput, FlattenJSON,
   DataCleansing, GenerateIDColumn, SqlServerInput, OracleInput, Connection, SnowflakeInput, FormulaRow, InlineInput, S3FileOutput, S3FileInput,
-  SnowflakeOutput, SqlServerOutput, OracleOutput, CustomInput, CustomOutput, FileUtils, FrequencyAnalysis, FormExample,UniqueKeyDetector,FileAction,DataframeList,DataframeDelete,HierarchyPath }
+  SnowflakeOutput, SqlServerOutput, OracleOutput, CustomInput, CustomOutput, FileUtils, FrequencyAnalysis, FormExample,UniqueKeyDetector,FileAction,DataframeList,DataframeDelete,HierarchyPath,
+  GlueDataCatalogInput, GlueDataCatalogOutput }
 
 const plugin: JupyterFrontEndPlugin<void> = {
   id: '@amphi/pipeline-components-core',
@@ -55,6 +57,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
     componentService.addComponent(SnowflakeInput.getInstance())
     componentService.addComponent(ODBCInput.getInstance())
     componentService.addComponent(CustomInput.getInstance())
+    
+    // AWS Glue Components
+    componentService.addComponent(GlueDataCatalogInput.getInstance())
+    
     // componentService.addComponent(PyGWalker.getInstance())
     // componentService.addComponent(Slider.getInstance())
 
@@ -101,6 +107,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
     componentService.addComponent(SqlServerOutput.getInstance())
     componentService.addComponent(OracleOutput.getInstance())
     componentService.addComponent(CustomOutput.getInstance())
+    
+    // AWS Glue Outputs
+    componentService.addComponent(GlueDataCatalogOutput.getInstance())
 
     // Documentation
     componentService.addComponent(Annotation.getInstance())
