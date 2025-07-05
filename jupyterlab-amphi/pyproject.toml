@@ -4,10 +4,15 @@ build-backend = "hatchling.build"
 
 [project]
 name = "jupyterlab-amphi"
-description="Amphi is a no-code ETL extension for Jupyterlab."
+version = "0.8.28"
+description = "Amphi is a no-code ETL extension for Jupyterlab."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.8"
+authors = [
+    { name = "Thibaut Gourdel", email = "tgourdel@amphi.ai" }
+]
+keywords = ["amphi", "etl", "micro etl", "jupyterlab-extension", "data integration", "data pipelines"]
 classifiers = [
     "Framework :: Jupyter",
     "Framework :: Jupyter :: JupyterLab",
@@ -24,17 +29,10 @@ classifiers = [
 ]
 dependencies = [
 ]
-dynamic = ["version", "authors", "keywords"]
 
 [project.urls]
 Documentation = "https://docs.amphi.ai"
 Homepage = "https://amphi.ai"
-
-[tool.hatch.version]
-source = "nodejs"
-
-[tool.hatch.metadata.hooks.nodejs]
-fields = ["description", "authors", "urls"]
 
 [tool.hatch.build.targets.sdist]
 artifacts = ["amphi"]
@@ -49,28 +47,6 @@ include = [
 # designated folder from wich jupterlab/lite takes its extensions
 [tool.hatch.build.targets.wheel.shared-data]
 amphi = "share/jupyter/labextensions/@amphi"
-
-[tool.hatch.build.hooks.version]
-path = "amphi/_version.py"
-
-[tool.hatch.build.hooks.jupyter-builder]
-dependencies = ["hatch-jupyter-builder>=0.5"]
-build-function = "hatch_jupyter_builder.npm_builder"
-ensured-targets = [
-    "amphi/pipeline-editor/static/style.js",
-    "amphi/pipeline-editor/package.json",
-]
-skip-if-exists = ["amphi/pipeline-editor/static/style.js"]
-
-[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
-build_cmd = "build:prod"
-npm = ["jlpm"]
-
-[tool.hatch.build.hooks.jupyter-builder.editable-build-kwargs]
-build_cmd = "install:extension"
-npm = ["jlpm"]
-source_dir = "amphi"
-build_dir = "amphi"
 
 [tool.jupyter-releaser.options]
 version_cmd = "hatch version"
